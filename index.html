@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GyanMarg</title>
+  <style>
+    /* Basic Reset */
+    body, h1, h2, h3, p {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+    }
+    body {
+      line-height: 1.6;
+      color: #333;
+    }
+    img {
+      max-width: 100%;
+      height: auto;
+    }
+    .container {
+      width: 90%;
+      max-width: 1200px;
+      margin: auto;
+      background-color: #499a9c;
+    }
+    /* Navbar */
+    .navbar {
+      background-color: #4b0082;
+      color: #fff;
+      padding: 1rem 0;
+      text-align: center;
+    }
+    .navbar h1 {
+      font-size: 1.8rem;
+    }
+    /* Hero Section */
+    .hero {
+      color: #fff;
+      padding: 4rem 0;
+      text-align: center;
+      margin-top: 50px;
+    }
+    .hero h1 {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+    }
+    .hero p {
+      font-size: 1.2rem;
+      margin-bottom: 2rem;
+    }
+    .btn {
+      display: inline-block;
+      padding: 0.75rem 1.5rem;
+      font-size: 1rem;
+      color: #fff;
+      background-color: #ffcc00;
+      border: none;
+      border-radius: 5px;
+      text-decoration: none;
+      margin: 0.5rem;
+      transition: background-color 0.3s;
+    }
+    .btn:hover {
+      background-color: #e6b800;
+    }
+    /* How It Works Section */
+    .how-it-works {
+      padding: 4rem 0;
+      text-align: center;
+    }
+    .how-it-works h2 {
+      font-size: 2rem;
+      margin-bottom: 2rem;
+      color: #4b0082;
+    }
+    .cards {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 2rem;
+    }
+    .card {
+      background-color: #f4f4f9;
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      padding: 1.5rem;
+      width: 300px;
+      text-align: center;
+    }
+    .card h3 {
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+      color: #4b0082;
+    }
+    .card p {
+      font-size: 1rem;
+      margin-bottom: 1rem;
+    }
+    /* Impact Section */
+    .impact {
+      padding: 4rem 0;
+      background-color: #ffffff;
+      text-align: center;
+      font-size: 1.5rem;
+    }
+    .impact h2 {
+      font-size: 2rem;
+      margin-bottom: 2rem;
+      color: #4b0082;
+    }
+    .stats {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 2rem;
+      background-color: #a77373;
+    }
+    .stat {
+      background-color: #a77373;
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      padding: 1.5rem;
+      width: 200px;
+      text-align: center;
+    }
+    .stat h3 {
+      font-size: 2rem;
+      color: #4b0082;
+    }
+    .stat p {
+      font-size: 1rem;
+      color: #666;
+    }
+    /* Footer */
+footer {
+  width: 100%;
+  background-color: #4b0082;
+  color: white;
+  padding: 15px 30px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom:auto;
+}
+
+.footer-section ul {
+  list-style: none;
+  display: flex;
+  gap: 20px;
+}
+
+.footer-section a {
+  color: white;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.footer-section a:hover {
+  text-decoration: underline;
+}
+    .navbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 15px 30px;
+    background-color: #4b0082;
+    color: white;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+    }
+
+    .logo {
+    width: 50px; /* Adjust size as needed */
+    height: 50px;
+    border-radius: 50%; /* Makes it round */
+    object-fit: cover; /* Ensures the image fills the space properly */
+    background: none; /* Removes any background */
+    border: none; /* Ensures no border around it */
+}
+
+
+.auth-buttons {
+    display: flex;
+    gap: 10px;
+    margin-right: 40px; /* Move buttons slightly to the left */
+}
+
+.auth-buttons button {
+    background-color: #499a9c;
+    color: rgb(12, 1, 1);
+    border: none;
+    padding: 10px 15px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 1rem;
+}
+
+.auth-buttons button:hover {
+    background-color: rgb(92, 211, 122);
+}
+
+  </style>
+</head>
+<body>
+
+  <!-- Navbar -->
+  
+  <header class="navbar">
+    <img class="logo" src="logo.png" alt="GyanMarg Logo" />
+    <h1>GyanMarg</h1>
+    <div class="auth-buttons">
+      <button class="sign-in" onclick="location.href='signin.html'">Sign In</button>
+      <button class="sign-up" onclick="location.href='signup.html'">Sign Up</button>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <div class="hero">
+    <div class="container">
+      <h1>Empower Young Minds with GyanMarg</h1>
+      <p>Join our thriving education movement to create a brighter future for all.</p>
+      <a href="signup.html" class="btn">Get Started</a>
+    </div>
+  </div>
+
+  <!-- How It Works Section -->
+  <div class="how-it-works">
+    <div class="container">
+      <h2>How It Works</h2>
+      <div class="cards">
+        <div class="card">
+          <h3>Volunteer</h3>
+          <p>Share your knowledge and make a difference in students' lives.</p>
+          <img src="https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=300&h=200" alt="Volunteer Teaching">
+        </div>
+        <div class="card">
+          <h3>Donate</h3>
+          <p>Support our mission and empower education with resources.</p>
+          <img src="https://images.unsplash.com/photo-1532629345422-7515f3d16bb6?auto=format&fit=crop&w=300&h=200" alt="Supporting Education">
+        </div>
+        <div class="card">
+          <h3>Access Resources</h3>
+          <p>Utilize our comprehensive educational resources anytime.</p>
+          <img src="resources.png" alt="esources">
+        </div>
+      </div>
+   </div>
+ 
+   <section class="impact">
+    <h2>Our Impact</h2>
+    <div class="stats-container">
+      <div class="stats-chart">
+        <div class="stat-bar volunteers"></div>
+      </div>
+      <div class="stat-cards">
+        <article class="stat-card">
+          <h3 id="volunteer-count">0</h3>
+          <p>Active Volunteers</p>
+        </article>
+      </div>
+      <div class="stat-cards">
+        <article class="stat-card">
+          <h3 id="center-count">0</h3>
+          <p>Registered Centers</p>
+        </article>
+      </div>
+    </div>
+  </section>
+  <footer>
+    <div class="footer-section">
+      <h3>Support</h3>
+      <ul>
+        <li><a href="#">Help Center</a></li>
+        <li><a href="#">Contact Us</a></li>
+        <li><a href="#">Feedback</a></li>
+      </ul>
+    </div>
+  </footer>
+
+  <script>
+    async function fetchVolunteerCount() {
+      try {
+        const response = await fetch("http://localhost:3000/getVolunteerCount");
+        const data = await response.json();
+        document.getElementById("volunteer-count").textContent = data.count;
+      } catch (error) {
+        console.error("Error fetching volunteer count:", error);
+      }
+    }
+    fetchVolunteerCount();
+  </script>
+  <script>
+    async function fetchCenterCount() {
+      try {
+        const response = await fetch("http://localhost:3000/getCenterCount");
+        const data = await response.json();
+        document.getElementById("center-count").textContent = data.count;
+      } catch (error) {
+        console.error("Error fetching center count:", error);
+      }
+    }
+    fetchCenterCount();
+  </script>
+</body>
+</html>
