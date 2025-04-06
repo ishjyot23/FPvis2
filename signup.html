@@ -50,7 +50,7 @@
 
   <h2>Signup</h2>
   <div class="form-container">
-    <form id="signup-form" action="http://localhost:3000/signup" method="POST">
+    <form id="signup-form" action="https://fpvis2.onrender.com/signup" method="POST">
       <div class="form-group">
         <label for="name">Full Name</label>
         <input type="text" id="name" name="name" placeholder="Enter your full name" required />
@@ -93,7 +93,7 @@
     const formData = { name, email, phone, password };
 
     try {
-      const response = await fetch("http://localhost:3000/signup", {
+      const response = await fetch("https://fpvis2.onrender.com/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
