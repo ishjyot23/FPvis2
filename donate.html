@@ -48,7 +48,7 @@
   <script>
     async function loadCenters() {
       try {
-        const res = await fetch("http://localhost:3000/verified-centers");
+        const res = await fetch("https://fpvis2.onrender.com/verified-centers");
         const centers = await res.json();
 
         const tableBody = document.getElementById("centerTableBody");
