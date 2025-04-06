@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Donate - Verified Centers</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th, td {
+      padding: 12px 15px;
+      border: 1px solid #ccc;
+      text-align: left;
+    }
+    th {
+      background-color: #f4f4f4;
+    }
+  </style>
+</head>
+<body>
+  <h1>Contact them to donate to Verified Centers</h1>
+  <table id="centerTable">
+    <thead>
+      <tr>
+        <th>Center Name</th>
+        <th>Email</th>
+        <th>Phone</th>
+        <th>Registration No</th>
+        <th>Address</th>
+      </tr>
+    </thead>
+    <tbody id="centerTableBody">
+      <!-- Populated by JS -->
+    </tbody>
+  </table>
+
+  <script>
+    async function loadCenters() {
+      try {
+        const res = await fetch("http://localhost:3000/verified-centers");
+        const centers = await res.json();
+
+        const tableBody = document.getElementById("centerTableBody");
+        tableBody.innerHTML = "";
+
+        centers.forEach(center => {
+          const row = document.createElement("tr");
+          row.innerHTML = `
+            <td>${center.center_name}</td>
+            <td>${center.email}</td>
+            <td>${center.phone}</td>
+            <td>${center.regNo}</td>
+            <td>${center.centerAdd}</td>
+          `;
+          tableBody.appendChild(row);
+        });
+
+      } catch (error) {
+        console.error("Error loading centers:", error);
+      }
+    }
+
+    window.onload = loadCenters;
+  </script>
+</body>
+</html>

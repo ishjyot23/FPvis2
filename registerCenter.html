@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>registerCenter</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f9;
+      padding: 20px;
+      text-align: center;
+    }
+    .form-container {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      width: 300px;
+      margin: auto;
+    }
+    .form-group {
+      margin-bottom: 15px;
+    }
+    label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+    input {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    button {
+      background-color: #751275;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #e775f1;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Register Your Center!</h2>
+  <div class="form-container">
+    <form id="register-form">
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" placeholder="Enter your user email" required />
+      </div>
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" placeholder="Enter your user password" required />
+      </div>
+      <div class="form-group">
+        <label for="phone">Contact No.</label>
+        <input type="text" id="phone" name="phone" placeholder="Enter your contact no." required />
+      </div>
+      <div class="form-group">
+        <label for="center_name">Center Name</label>
+        <input type="text" id="center_name" name="center_name" placeholder="Enter the name of your center" required />
+      </div>
+      <div class="form-group">
+        <label for="centerAdd">Center Address</label>
+        <input type="text" id="centerAdd" name="center_name" placeholder="Enter the address of your center" required />
+      </div>
+      <div class="form-group">
+        <label for="regNo">Registeration No</label>
+        <input type="text" id="regNo" name="regNo" placeholder="Enter the Reg_No of your center" required />
+      </div>
+      <button type="submit">Register</button>
+    </form>
+  </div>
+
+<script>
+  document.getElementById("register-form").addEventListener("submit", async function(event) {
+    event.preventDefault(); // Prevent page reload
+
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value.trim();
+    const phone = document.getElementById("phone").value.trim();
+    const center_name = document.getElementById("center_name").value.trim();
+    const centerAdd = document.getElementById("centerAdd").value.trim();
+    const regNo = document.getElementById("regNo").value.trim();
+
+    console.log("Attempting to register...");
+    console.log("Email:", email);
+    console.log("Password:", password);
+
+    try {
+      const response = await fetch("http://localhost:3000/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password, phone, center_name, centerAdd, regNo})
+      });
+
+      const data = await response.json();
+      console.log("Response received:", data);
+
+      if (response.ok) {
+        window.location.href = "verifyCenter.html"; // Redirect to next page
+      } else {
+        alert(data.error); // Show error message
+      }
+    } catch (error) {
+      console.error("Fetch error:", error);
+      alert("Something went wrong. Please try again.");
+    }
+  });
+</script>
+</body>
+</html>

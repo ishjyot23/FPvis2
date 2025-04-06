@@ -19,9 +19,9 @@ const db = new sqlite3.Database("gyanMargDB.db", sqlite3.OPEN_READWRITE, (err) =
 
 // API to handle user signup
 app.post("/signup", (req, res) => {
-  const { name, email, password } = req.body;
+  const { name, email,phone, password } = req.body;
 
-  if (!name || !email || !password) {
+  if (!name || !email || !phone ||!password) {
     return res.status(400).json({ error: "All fields are required" });
   }
 
@@ -36,8 +36,8 @@ app.post("/signup", (req, res) => {
     }
 
     // Insert user if email is not found
-    const insertQuery = "INSERT INTO user (email, name, password) VALUES (?, ?, ?)";
-    db.run(insertQuery, [email, name, password], function (err) {
+    const insertQuery = "INSERT INTO user (email, name, phone, password) VALUES (?, ?, ?, ?)";
+    db.run(insertQuery, [email, name, phone, password], function (err) {
       if (err) {
         console.error("Error inserting user:", err.message);
         return res.status(500).json({ error: "Database error" });
@@ -79,6 +79,184 @@ app.post("/signin", (req, res) => {
   });
 });
 
+// API to handle center registeration
+app.post("/register", (req, res) => {
+  const { email, password, phone, center_name, centerAdd, regNo } = req.body;
+
+  console.log("Register attempt for:", email);
+
+  if (!email || !password) {
+    return res.status(400).json({ error: "All fields are required" });
+  }
+
+  const query = "SELECT email, password FROM user WHERE email = ?";
+  db.get(query, [email], (err, row) => {
+    if (err) {
+      console.error("Database error:", err.message);
+      return res.status(500).json({ error: "Database error" });
+    }
+
+    if (!row) {
+      console.log("No user found with email:", email);
+      return res.status(400).json({ error: "Invalid email or password" });
+    }
+
+    if (row.password !== password) {
+      console.log("Incorrect password for:", email);
+      return res.status(400).json({ error: "Invalid email or password" });
+    }
+
+    // Update center details in that row if email is found
+const updateQuery = `
+UPDATE user 
+SET phone = ?, center_name = ?, centerAdd = ?, regNo = ?, role = 'center'
+WHERE email = ?
+`;
+
+db.run(updateQuery, [phone, center_name, centerAdd, regNo, email], function (err) {
+if (err) {
+  console.error("Error updating user:", err.message);
+  return res.status(500).json({ error: "Database error" });
+}
+
+// Now insert into verification table
+const insertQuery = `
+  INSERT INTO verification (center_email) VALUES (?)
+`;
+
+db.run(insertQuery, [email], function (err) {
+  if (err) {
+    console.error("Error inserting into verification:", err.message);
+    return res.status(500).json({ error: "Database error" });
+  }
+
+  // Send final response after both operations succeed
+  res.status(201).json({ message: "Registration successful!" });
+});
+});
+  });
+});
+
+// API to get available sessions
+app.get("/available-sessions", (req, res) => {
+  const query = "SELECT * FROM session WHERE status = 'available'";
+  
+  db.all(query, [], (err, rows) => {
+    if (err) {
+      console.error("Error fetching available sessions:", err.message);
+      res.status(500).json({ error: "Internal Server Error" });
+    } else {
+      res.json(rows);
+    }
+  });
+});
+
+// POST to update session status
+app.post("/update-session", (req, res) => {
+  const { session_id, action, user_email } = req.body;
+
+  if (!session_id || !action || !user_email) {
+    return res.status(400).json({ success: false, message: "Missing required fields" });
+  }
+
+  const newStatus = action === "join" ? "booked" : "available";
+  const volunteer = action === "join" ? user_email : null;
+
+  const query = `UPDATE session SET status = ?, volunteer_email = ? WHERE id = ?`;
+
+  db.run(query, [newStatus, volunteer, session_id], function (err) {
+    if (err) {
+      console.error("Error updating session:", err.message);
+      return res.status(500).json({ success: false, message: "Database error" });
+    }
+
+    if (this.changes === 0) {
+      return res.status(404).json({ success: false, message: "Session not found" });
+    }
+
+    res.json({ success: true, message: "Session updated successfully" });
+  });
+});
+
+// API for created sessions
+app.post('/createdSessions', async (req, res) => {
+  const { email } = req.body;
+
+  if (!email) {
+    return res.status(400).send("Missing required email");
+  }
+
+  try {
+    const query = `
+      SELECT * FROM session
+      WHERE center_email = ?;
+    `;
+    db.all(query, [email], (err, rows) => {
+      if (err) {
+        console.error("Database error:", err);
+        return res.status(500).send("Server error");
+      }
+      res.json(rows);
+    });
+  } catch (error) {
+    console.error("Error fetching created sessions:", error);
+    res.status(500).send("Server error");
+  }
+});
+
+// API create session
+app.post("/createSession", (req, res) => {
+  const { center_email, subjects, class_level, date_session, timings } = req.body;
+
+  if (!center_email || !subjects || !class_level || !date_session || !timings) {
+    return res.status(400).json({ error: "All fields are required." });
+  }
+
+  // Step 1: Check verification
+  db.get("SELECT * FROM verification WHERE center_email = ?", [center_email], (err, verification) => {
+    if (err) {
+      console.error("Verification lookup error:", err.message);
+      return res.status(500).json({ error: "Database error" });
+    }
+
+    if (!verification) {
+      return res.status(400).json({ error: "Register your center first using this email." });
+    }
+
+    if (!verification.status) {
+      return res.status(400).json({ error: "Your center is not verified yet! You will receive an email if it's verified." });
+    }
+
+    // Step 2: Get center_name from user table
+    db.get("SELECT center_name FROM user WHERE email = ?", [center_email], (err, user) => {
+      if (err) {
+        console.error("User lookup error:", err.message);
+        return res.status(500).json({ error: "Database error" });
+      }
+
+      if (!user) {
+        return res.status(400).json({ error: "User not found with this email." });
+      }
+
+      const center_name = user.center_name;
+
+      // Step 3: Insert session
+      const insertQuery = `
+        INSERT INTO session (center_email, subjects, class_level, date_session, timings, center_name, status)
+        VALUES (?, ?, ?, ?, ?, ?, 'available')
+      `;
+
+      db.run(insertQuery, [center_email, subjects, class_level, date_session, timings, center_name], function (err) {
+        if (err) {
+          console.error("Insert session error:", err.message);
+          return res.status(500).json({ error: "Could not create session" });
+        }
+
+        res.status(201).json({ message: "Session created successfully!" });
+      });
+    });
+  });
+});
 
 
 // API to get volunteer count
@@ -91,7 +269,7 @@ app.get("/getVolunteerCount", (req, res) => {
     }
     
 
-    db.get("SELECT COUNT(*) AS count FROM user WHERE role = 'volunteer'", [], (err, row) => {
+    db.get("SELECT COUNT(DISTINCT volunteer_email) AS count FROM session", [], (err, row) => {
       if (err) {
         console.error("❌ Count Error:", err.message);
         res.status(500).json({ error: err.message });
@@ -101,7 +279,7 @@ app.get("/getVolunteerCount", (req, res) => {
     });
   });
 });
-// API to get volunteer count
+// API to get center count
 app.get("/getCenterCount", (req, res) => {
     
 
@@ -128,7 +306,7 @@ app.post("/sessions", (req, res) => {
   console.log("📩 Received request for email:", email);
 
   const query = `
-    SELECT subjects, date_session, class_level, center_name 
+    SELECT subjects, date_session, class_level, center_name, center_email 
     FROM session 
     WHERE volunteer_email = ?
   `;
@@ -149,6 +327,26 @@ app.post("/sessions", (req, res) => {
     res.json(rows);
   });
 });
+
+// Get list of all verified centers
+app.get("/verified-centers", (req, res) => {
+  const query = `
+    SELECT u.center_name, u.email, u.phone, u.regNo, u.centerAdd
+    FROM user u
+    JOIN verification v ON u.email = v.center_email
+    WHERE u.role = 'center' AND v.status = 1
+  `;
+
+  db.all(query, [], (err, rows) => {
+    if (err) {
+      console.error("Error fetching verified centers:", err.message);
+      return res.status(500).json({ error: "Database error" });
+    }
+
+    res.json(rows);
+  });
+});
+
 
 // Start the server on port 3000
 app.listen(3000, () => {

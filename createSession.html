@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>registerCenter</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f9;
+      padding: 20px;
+      text-align: center;
+    }
+    .form-container {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      width: 300px;
+      margin: auto;
+    }
+    .form-group {
+      margin-bottom: 15px;
+    }
+    label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+    input {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    button {
+      background-color: #751275;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #e775f1;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Create a New Session!</h2>
+  <div class="form-container">
+    <form id="create-form">
+      <div class="form-group">
+        <label for="subjects">Subject</label>
+        <input type="text" id="subjects" required />
+      </div>
+      <div class="form-group">
+        <label for="class_level">Class Level</label>
+        <input type="text" id="class_level" required />
+      </div>
+      <div class="form-group">
+        <label for="date_session">Date</label>
+        <input type="text" id="date_session" required />
+      </div>
+      <div class="form-group">
+        <label for="timings">Timings</label>
+        <input type="text" id="timings" required />
+      </div>
+      <button type="submit">Create Session</button>
+    </form>
+  </div>
+
+  <script>
+    document.getElementById("create-form").addEventListener("submit", async function(event) {
+      event.preventDefault(); // Prevent page reload
+
+      const center_email = localStorage.getItem("useremail"); // Get email from localStorage
+
+      if (!center_email) {
+        alert("User email not found. Please sign in again.");
+        return;
+      }
+
+      const subjects = document.getElementById("subjects").value;
+      const class_level = document.getElementById("class_level").value;
+      const date_session = document.getElementById("date_session").value;
+      const timings = document.getElementById("timings").value;
+
+      try {
+        const response = await fetch("http://localhost:3000/createSession", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            center_email,
+            subjects,
+            class_level,
+            date_session,
+            timings
+          })
+        });
+
+        const data = await response.json();
+        if (response.ok) {
+          alert("Session created successfully!");
+          window.location.href = "landing.html";
+        } else {
+          alert(data.error || "Failed to create session");
+        }
+      } catch (error) {
+        console.error("Fetch error:", error);
+        alert("Something went wrong. Please try again.");
+      }
+    });
+  </script>
+</body>
+</html>

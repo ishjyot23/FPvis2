@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Join Session</title>
+  <style>
+    .session-card {
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 2px 2px 10px rgba(0,0,0,0.1);
+    }
+  </style>
+</head>
+<body>
+  <h1>Available Sessions</h1>
+  <p>Note: Once joined...remove/cancel at this page itself...once saved... you would need to contact us for the same</p>
+  <div id="sessionContainer"></div>
+
+  <script>
+    async function fetchSessions() {
+      try {
+        const response = await fetch("http://localhost:3000/available-sessions");
+        const sessions = await response.json();
+
+        const container = document.getElementById("sessionContainer");
+        container.innerHTML = ""; // Clear old content
+
+        sessions.forEach(session => {
+          const card = document.createElement("div");
+          card.className = "session-card";
+
+          const isBooked = session.status === "booked";
+
+          const button = document.createElement("button");
+          button.textContent = isBooked ? "Remove" : "Join";
+          button.style.backgroundColor = isBooked ? "red" : "green";
+          button.style.color = "white";
+          button.style.padding = "10px 20px";
+          button.style.border = "none";
+          button.style.borderRadius = "5px";
+          button.style.marginTop = "10px";
+          button.style.cursor = "pointer";
+
+          button.addEventListener("click", async () => {
+            const action = button.textContent.toLowerCase();
+            const user_email = localStorage.getItem("useremail"); 
+
+            try {
+              const res = await fetch("http://localhost:3000/update-session", {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  session_id: session.id,
+                  action: action,
+                  user_email: user_email,
+                }),
+              });
+
+              const result = await res.json();
+
+              if (result.success) {
+                // Toggle button and session status
+                session.status = action === "join" ? "booked" : "available";
+                button.textContent = action === "join" ? "Remove" : "Join";
+                button.style.backgroundColor = action === "join" ? "red" : "green";
+              } else {
+                alert("Error: " + result.message);
+              }
+            } catch (error) {
+              console.error("Update failed:", error);
+            }
+          });
+
+          card.innerHTML = `
+            <h3>${session.subjects}</h3>
+            <p>Grade: ${session.class_level}</p>
+            <p>Date: ${session.date_session}</p>
+            <p>Center: ${session.center_name}</p>
+            <p>Status: ${session.status}</p>
+          `;
+
+          card.appendChild(button);
+          container.appendChild(card);
+        });
+      } catch (err) {
+        console.error("Error loading sessions:", err);
+      }
+    }
+
+    fetchSessions();
+  </script>
+</body>
+</html>

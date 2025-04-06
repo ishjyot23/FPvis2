@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Resources</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f9f9f9;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+    }
+
+    .container {
+      text-align: center;
+      max-width: 600px;
+      padding: 30px;
+      background-color: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    img {
+      max-width: 100%;
+      height: auto;
+      margin-bottom: 20px;
+    }
+
+    h1 {
+      margin-bottom: 30px;
+    }
+
+    .board-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+      flex-wrap: wrap;
+    }
+
+    .board-buttons button {
+      padding: 15px 30px;
+      font-size: 18px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: 0.3s ease;
+    }
+
+    .cbse-btn {
+      background-color: #4CAF50;
+      color: white;
+    }
+
+    .cbse-btn:hover {
+      background-color: #45a049;
+    }
+
+    .state-btn {
+      background-color: #2196F3;
+      color: white;
+    }
+
+    .state-btn:hover {
+      background-color: #1976D2;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <img src="resources.png" alt="Educational Resources" />
+    <h1>Educational Resources</h1>
+
+    <div class="board-buttons">
+      <button class="cbse-btn" onclick="openLink('https://drive.google.com/drive/folders/1uYw3V2ZpQYe3bey6xW3yZzvphpIjsAl-?usp=sharing')">
+        CBSE Board
+      </button>
+
+      <button class="state-btn" onclick="openLink('https://drive.google.com/drive/folders/1e-bgqK0gScPcD2Qp6zkgQOnfznEM1Xz8?usp=sharing')">
+        STATE Board
+      </button>
+    </div>
+  </div>
+
+  <script>
+    function openLink(url) {
+      window.open(url, '_blank');
+    }
+  </script>
+
+</body>
+</html>
