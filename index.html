@@ -308,13 +308,15 @@ footer {
     fetchCenterCount();
   </script>
      <script>
-    fetch('https://fpvis2.onrender.com/verify', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ email: 'ish@gmail' })
-});
-
-
+    async function updateverify() {
+      try {
+        const response = await fetch("https://fpvis2.onrender.com/verify");
+        const data = await response.json();
+      } catch (error) {
+        console.error("Error updating:", error);
+      }
+    }
+    updateverify();
   </script>
 </body>
 </html>
