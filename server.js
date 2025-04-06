@@ -354,11 +354,31 @@ app.get("/verified-centers", (req, res) => {
     res.json(rows);
   });
 });
-//verify a record manually
-app.post('/verify', (req, res) => {
-  db.run(`UPDATE verification SET status = 1 WHERE email = ?`, [req.body.email]);
-  res.send('OK');
+app.post("/verify", (req, res) => {
+  const { email } = req.body;
+
+  if (!email) {
+    return res.status(400).json({ error: "Email is required" });
+  }
+
+  const query = "SELECT * FROM verification WHERE center_email = ?";
+  db.get(query, [email], (err, row) => {
+    if (err) {
+      console.error("Database error:", err.message);
+      return res.status(500).json({ error: "Database error" });
+    }
+
+    if (!row) {
+      return res.status(404).json({ verified: false, message: "Email not registered in verification table" });
+    }
+
+    return res.status(200).json({
+      verified: !!row.status,
+      message: row.status ? "Center is verified" : "Center is not verified yet"
+    });
+  });
 });
+
 
 
 // Start the server
