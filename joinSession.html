@@ -22,7 +22,7 @@
   <script>
     async function fetchSessions() {
       try {
-        const response = await fetch("http://localhost:3000/available-sessions");
+        const response = await fetch("https://fpvis2.onrender.com/available-sessions");
         const sessions = await response.json();
 
         const container = document.getElementById("sessionContainer");
@@ -49,7 +49,7 @@
             const user_email = localStorage.getItem("useremail"); 
 
             try {
-              const res = await fetch("http://localhost:3000/update-session", {
+              const res = await fetch("https://fpvis2.onrender.com/update-session", {
                 method: "POST",
                 headers: {
                   "Content-Type": "application/json",
