@@ -8,6 +8,14 @@ app.use(cors()); // Allow frontend to communicate
 app.use(bodyParser.urlencoded({ extended: true })); // Parse form data
 app.use(bodyParser.json()); // Parse JSON data
 
+// Serve frontend files from root (IMPORTANT FOR DEPLOYMENT)
+app.use(express.static(__dirname));
+
+// Optional: serve index.html at root
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "index.html"));
+});
+
 // Connect to SQLite3 database
 const db = new sqlite3.Database("gyanMargDB.db", sqlite3.OPEN_READWRITE, (err) => {
   if (err) {
@@ -348,7 +356,8 @@ app.get("/verified-centers", (req, res) => {
 });
 
 
-// Start the server on port 3000
-app.listen(3000, () => {
-  console.log("Server running at http://localhost:3000/");
+// Start the server
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Server running at http://localhost:${PORT}/`);
 });
