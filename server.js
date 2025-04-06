@@ -354,6 +354,11 @@ app.get("/verified-centers", (req, res) => {
     res.json(rows);
   });
 });
+//verify a record manually
+app.post('/verify', (req, res) => {
+  db.run(`UPDATE verification SET status = 1 WHERE email = ?`, [req.body.email]);
+  res.send('OK');
+});
 
 
 // Start the server
