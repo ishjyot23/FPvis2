@@ -354,7 +354,7 @@ app.get("/verified-centers", (req, res) => {
     res.json(rows);
   });
 });
-app.post("/verify/update", (req, res) => {
+app.post("/verify", (req, res) => {
   const { email } = req.body;
 
   if (!email) {
