@@ -260,7 +260,7 @@ footer {
           
               // Fetch Upcoming Sessions
               try {
-                const response = await fetch("http://localhost:3000/sessions", {
+                const response = await fetch("https://fpvis2.onrender.com/sessions", {
                   method: "POST",
                   headers: { "Content-Type": "application/json" },
                   body: JSON.stringify({ email: userEmail })
@@ -297,7 +297,7 @@ footer {
           
               // Fetch Created Sessions
               try {
-                const createdResponse = await fetch("http://localhost:3000/createdSessions", {
+                const createdResponse = await fetch("https://fpvis2.onrender.com/createdSessions", {
                   method: "POST",
                   headers: { "Content-Type": "application/json" },
                   body: JSON.stringify({ email: userEmail })
