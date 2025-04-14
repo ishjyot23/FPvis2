@@ -2,6 +2,8 @@ const express = require("express");
 const sqlite3 = require("sqlite3").verbose();
 const cors = require("cors");
 const bodyParser = require("body-parser");
+const nodemailer = require("nodemailer");
+const crypto = require("crypto"); // For unique token
 
 const app = express();
 app.use(cors()); // Allow frontend to communicate
@@ -27,9 +29,9 @@ const db = new sqlite3.Database("gyanMargDB.db", sqlite3.OPEN_READWRITE, (err) =
 
 // API to handle user signup
 app.post("/signup", (req, res) => {
-  const { name, email,phone, password } = req.body;
+  const { name, email, phone, password } = req.body;
 
-  if (!name || !email || !phone ||!password) {
+  if (!name || !email || !phone || !password) {
     return res.status(400).json({ error: "All fields are required" });
   }
 
@@ -39,21 +41,63 @@ app.post("/signup", (req, res) => {
       console.error("Error checking email:", err.message);
       return res.status(500).json({ error: "Database error" });
     }
+
     if (row) {
       return res.status(400).json({ error: "Email already registered" });
     }
 
-    // Insert user if email is not found
-    const insertQuery = "INSERT INTO user (email, name, phone, password) VALUES (?, ?, ?, ?)";
-    db.run(insertQuery, [email, name, phone, password], function (err) {
+    // Step 1: Generate token and save it in memory
+    const token = crypto.randomBytes(32).toString("hex");
+    verificationTokens.set(token, { name, email, phone, password });
+
+    // Step 2: Send email with verification link
+    const transporter = nodemailer.createTransport({
+      service: "gmail", // or another email service
+      auth: {
+        user: "ishjyot@gmail.com",
+        pass: "cxdh pqdo nlfe xydu", // use an app password, not your main password
+      },
+    });
+
+    const verificationLink = `http://localhost:3000/verify-email?token=${token}`;
+    const mailOptions = {
+      from: '"GyanMarg" <your.email@gmail.com>',
+      to: email,
+      subject: "Verify your email for GyanMarg",
+      html: `<p>Hello ${name},</p><p>Click the link below to verify your email and complete signup:</p><a href="${verificationLink}">${verificationLink}</a>`,
+    };
+
+    transporter.sendMail(mailOptions, (err, info) => {
       if (err) {
-        console.error("Error inserting user:", err.message);
-        return res.status(500).json({ error: "Database error" });
+        console.error("Error sending email:", err.message);
+        return res.status(500).json({ error: "Failed to send verification email" });
       }
-      res.status(201).json({ message: "Signup successful!" });
+
+      res.status(200).json({ message: "Verification email sent. Please check your inbox." });
     });
   });
 });
+app.get("/verify-email", (req, res) => {
+  const { token } = req.query;
+
+  if (!token || !verificationTokens.has(token)) {
+    return res.status(400).send("Invalid or expired verification link.");
+  }
+
+  const { name, email, phone, password } = verificationTokens.get(token);
+
+  const insertQuery = "INSERT INTO user (email, name, phone, password) VALUES (?, ?, ?, ?)";
+  db.run(insertQuery, [email, name, phone, password], function (err) {
+    if (err) {
+      console.error("Error inserting user:", err.message);
+      return res.status(500).send("Database error while verifying email.");
+    }
+
+    verificationTokens.delete(token);
+    res.send(`<h2>Email verified successfully! You can now <a href="/">sign in</a>.</h2>`);
+  });
+});
+
 
 // API to handle user signin
 app.post("/signin", (req, res) => {
