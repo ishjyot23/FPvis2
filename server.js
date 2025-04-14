@@ -203,7 +203,7 @@ app.get("/available-sessions", (req, res) => {
   });
 });
 
-// POST to update session status
+// POST to update session status (for joining a session)
 app.post("/update-session", (req, res) => {
   const { session_id, action, user_email } = req.body;
 
@@ -214,21 +214,70 @@ app.post("/update-session", (req, res) => {
   const newStatus = action === "join" ? "booked" : "available";
   const volunteer = action === "join" ? user_email : null;
 
-  const query = `UPDATE session SET status = ?, volunteer_email = ? WHERE id = ?`;
-
-  db.run(query, [newStatus, volunteer, session_id], function (err) {
+  // First, fetch the session details to include in the email
+  const query = `SELECT * FROM session WHERE id = ?`;
+  db.get(query, [session_id], (err, session) => {
     if (err) {
-      console.error("Error updating session:", err.message);
+      console.error("Error fetching session:", err.message);
       return res.status(500).json({ success: false, message: "Database error" });
     }
 
-    if (this.changes === 0) {
+    if (!session) {
       return res.status(404).json({ success: false, message: "Session not found" });
     }
 
-    res.json({ success: true, message: "Session updated successfully" });
+    // Update session status and volunteer email
+    const updateQuery = `UPDATE session SET status = ?, volunteer_email = ? WHERE id = ?`;
+    db.run(updateQuery, [newStatus, volunteer, session_id], function (err) {
+      if (err) {
+        console.error("Error updating session:", err.message);
+        return res.status(500).json({ success: false, message: "Database error" });
+      }
+
+      if (this.changes === 0) {
+        return res.status(404).json({ success: false, message: "Session not found" });
+      }
+
+      // Construct the email content
+      const transporter = nodemailer.createTransport({
+        service: "gmail", // or another email service
+        auth: {
+          user: "ishjyot@gmail.com",
+          pass: "cxdh pqdo nlfe xydu", // Ensure you're using an app password
+        },
+      });
+
+      const mailOptions = {
+        from: '"GyanMarg" <your.email@gmail.com>',
+        to: user_email,
+        subject: "You have successfully joined a session!",
+        html: `
+          <p>Hello,</p>
+          <p>You have successfully joined the following session:</p>
+          <p><strong>Session Name:</strong> ${session.subjects}</p>
+          <p><strong>Class Level:</strong> ${session.class_level}</p>
+          <p><strong>Date:</strong> ${session.date_session}</p>
+          <p><strong>Time:</strong> ${session.timings}</p>
+          <p>Thank you for your participation!</p>
+        `,
+      };
+
+      // Send email notification
+      transporter.sendMail(mailOptions, (err, info) => {
+        if (err) {
+          console.error("Error sending email:", err.message);
+          return res.status(500).json({ success: false, message: "Failed to send notification email" });
+        }
+
+        res.json({
+          success: true,
+          message: "Session updated successfully and notification email sent",
+        });
+      });
+    });
   });
 });
+
 
 // API for created sessions
 app.post('/createdSessions', async (req, res) => {
