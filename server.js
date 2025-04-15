@@ -7,12 +7,6 @@ const crypto = require("crypto"); // For unique token
 const app = express();
 const cors = require("cors");
 
-const corsOptions = {
-  origin: "https://vidishakataria0602.github.io", // your GitHub Pages domain
-  methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-  credentials: true,
-};
-
 app.use(cors());
 
 app.use(bodyParser.urlencoded({ extended: true })); // Parse form data
