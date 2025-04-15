@@ -61,7 +61,7 @@ app.post("/signup", (req, res) => {
 
     const verificationLink = `https://fpvis2.onrender.com/verify-email?token=${token}`;
     const mailOptions = {
-      from: '"GyanMarg" <your.email@gmail.com>',
+      from: '"GyanMarg" <ishjyot@gmail.com>',
       to: email,
       subject: "Verify your email for GyanMarg",
       html: `<p>Hello ${name},</p><p>Click the link below to verify your email and complete signup:</p><a href="${verificationLink}">${verificationLink}</a>`,
@@ -248,7 +248,7 @@ app.post("/update-session", (req, res) => {
       });
 
       const mailOptions = {
-        from: '"GyanMarg" <your.email@gmail.com>',
+        from: '"GyanMarg" <ishjyot@gmail.com>',
         to: user_email,
         subject: "You have successfully joined a session!",
         html: `
