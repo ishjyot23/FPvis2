@@ -13,7 +13,7 @@ app.use(cors({
   credentials: true
 }));
 
-app.use(cors());
+app.options('*', cors()); // allow preflight across all routes
 app.use(express.json()); // parses incoming JSON
 
 app.use(bodyParser.urlencoded({ extended: true })); // Parse form data
