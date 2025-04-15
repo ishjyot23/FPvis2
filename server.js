@@ -13,7 +13,7 @@ const corsOptions = {
   credentials: true,
 };
 
-app.use(cors(corsOptions));
+app.use(cors());
 
 app.use(bodyParser.urlencoded({ extended: true })); // Parse form data
 app.use(bodyParser.json()); // Parse JSON data
