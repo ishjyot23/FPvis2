@@ -1,22 +1,10 @@
 const express = require("express");
 const sqlite3 = require("sqlite3").verbose();
-const bodyParser = require("body-parser");
-const nodemailer = require("nodemailer");
-const crypto = require("crypto"); // For unique token
-const path = require("path");
-const app = express();
 const cors = require("cors");
-const verificationTokens = new Map();
+const bodyParser = require("body-parser");
 
-app.use(cors({
-  origin: "https://vidishakataria0602.github.io", // your GitHub Pages site
-  methods: ["GET", "POST", "PUT", "DELETE"],
-  credentials: true
-}));
-
-app.options('*', cors()); // allow preflight across all routes
-app.use(express.json()); // parses incoming JSON
-
+const app = express();
+app.use(cors()); // Allow frontend to communicate
 app.use(bodyParser.urlencoded({ extended: true })); // Parse form data
 app.use(bodyParser.json()); // Parse JSON data
 
@@ -39,9 +27,9 @@ const db = new sqlite3.Database("gyanMargDB.db", sqlite3.OPEN_READWRITE, (err) =
 
 // API to handle user signup
 app.post("/signup", (req, res) => {
-  const { name, email, phone, password } = req.body;
+  const { name, email,phone, password } = req.body;
 
-  if (!name || !email || !phone || !password) {
+  if (!name || !email || !phone ||!password) {
     return res.status(400).json({ error: "All fields are required" });
   }
 
@@ -51,63 +39,21 @@ app.post("/signup", (req, res) => {
       console.error("Error checking email:", err.message);
       return res.status(500).json({ error: "Database error" });
     }
-
     if (row) {
       return res.status(400).json({ error: "Email already registered" });
     }
 
-    // Step 1: Generate token and save it in memory
-    const token = crypto.randomBytes(32).toString("hex");
-    verificationTokens.set(token, { name, email, phone, password });
-
-    // Step 2: Send email with verification link
-    const transporter = nodemailer.createTransport({
-      service: "gmail", // or another email service
-      auth: {
-        user: "ishjyot@gmail.com",
-        pass: "cxdh pqdo nlfe xydu", // use an app password, not your main password
-      },
-    });
-
-    const verificationLink = `https://fpvis2.onrender.com/verify-email?token=${token}`;
-    const mailOptions = {
-      from: '"GyanMarg" <ishjyot@gmail.com>',
-      to: email,
-      subject: "Verify your email for GyanMarg",
-      html: `<p>Hello ${name},</p><p>Click the link below to verify your email and complete signup:</p><a href="${verificationLink}">${verificationLink}</a>`,
-    };
-
-    transporter.sendMail(mailOptions, (err, info) => {
+    // Insert user if email is not found
+    const insertQuery = "INSERT INTO user (email, name, phone, password) VALUES (?, ?, ?, ?)";
+    db.run(insertQuery, [email, name, phone, password], function (err) {
       if (err) {
-        console.error("Error sending email:", err.message);
-        return res.status(500).json({ error: "Failed to send verification email" });
+        console.error("Error inserting user:", err.message);
+        return res.status(500).json({ error: "Database error" });
       }
-
-      res.status(200).json({ message: "Verification email sent. Please check your inbox." });
+      res.status(201).json({ message: "Signup successful!" });
     });
   });
 });
-app.get("/verify-email", (req, res) => {
-  const { token } = req.query;
-
-  if (!token || !verificationTokens.has(token)) {
-    return res.status(400).send("Invalid or expired verification link.");
-  }
-
-  const { name, email, phone, password } = verificationTokens.get(token);
-
-  const insertQuery = "INSERT INTO user (email, name, phone, password) VALUES (?, ?, ?, ?)";
-  db.run(insertQuery, [email, name, phone, password], function (err) {
-    if (err) {
-      console.error("Error inserting user:", err.message);
-      return res.status(500).send("Database error while verifying email.");
-    }
-
-    verificationTokens.delete(token);
-    res.send(`<h2>Email verified successfully! You can now <a href="/">sign in</a>.</h2>`);
-  });
-});
-
 
 // API to handle user signin
 app.post("/signin", (req, res) => {
@@ -213,7 +159,7 @@ app.get("/available-sessions", (req, res) => {
   });
 });
 
-// POST to update session status (for joining a session)
+// POST to update session status
 app.post("/update-session", (req, res) => {
   const { session_id, action, user_email } = req.body;
 
@@ -224,70 +170,21 @@ app.post("/update-session", (req, res) => {
   const newStatus = action === "join" ? "booked" : "available";
   const volunteer = action === "join" ? user_email : null;
 
-  // First, fetch the session details to include in the email
-  const query = `SELECT * FROM session WHERE id = ?`;
-  db.get(query, [session_id], (err, session) => {
+  const query = `UPDATE session SET status = ?, volunteer_email = ? WHERE id = ?`;
+
+  db.run(query, [newStatus, volunteer, session_id], function (err) {
     if (err) {
-      console.error("Error fetching session:", err.message);
+      console.error("Error updating session:", err.message);
       return res.status(500).json({ success: false, message: "Database error" });
     }
 
-    if (!session) {
+    if (this.changes === 0) {
       return res.status(404).json({ success: false, message: "Session not found" });
     }
 
-    // Update session status and volunteer email
-    const updateQuery = `UPDATE session SET status = ?, volunteer_email = ? WHERE id = ?`;
-    db.run(updateQuery, [newStatus, volunteer, session_id], function (err) {
-      if (err) {
-        console.error("Error updating session:", err.message);
-        return res.status(500).json({ success: false, message: "Database error" });
-      }
-
-      if (this.changes === 0) {
-        return res.status(404).json({ success: false, message: "Session not found" });
-      }
-
-      // Construct the email content
-      const transporter = nodemailer.createTransport({
-        service: "gmail", // or another email service
-        auth: {
-          user: "ishjyot@gmail.com",
-          pass: "cxdh pqdo nlfe xydu", // Ensure you're using an app password
-        },
-      });
-
-      const mailOptions = {
-        from: '"GyanMarg" <ishjyot@gmail.com>',
-        to: user_email,
-        subject: "You have successfully joined a session!",
-        html: `
-          <p>Hello,</p>
-          <p>You have successfully joined the following session:</p>
-          <p><strong>Session Name:</strong> ${session.subjects}</p>
-          <p><strong>Class Level:</strong> ${session.class_level}</p>
-          <p><strong>Date:</strong> ${session.date_session}</p>
-          <p><strong>Time:</strong> ${session.timings}</p>
-          <p>Thank you for your participation!</p>
-        `,
-      };
-
-      // Send email notification
-      transporter.sendMail(mailOptions, (err, info) => {
-        if (err) {
-          console.error("Error sending email:", err.message);
-          return res.status(500).json({ success: false, message: "Failed to send notification email" });
-        }
-
-        res.json({
-          success: true,
-          message: "Session updated successfully and notification email sent",
-        });
-      });
-    });
+    res.json({ success: true, message: "Session updated successfully" });
   });
 });
-
 
 // API for created sessions
 app.post('/createdSessions', async (req, res) => {
@@ -478,6 +375,7 @@ app.post("/verify", (req, res) => {
     return res.status(200).json({ message: "Verification status updated to true" });
   });
 });
+
 
 
 
