@@ -59,7 +59,7 @@ app.post("/signup", (req, res) => {
       },
     });
 
-    const verificationLink = `http://localhost:3000/verify-email?token=${token}`;
+    const verificationLink = `https://fpvis2.onrender.com/verify-email?token=${token}`;
     const mailOptions = {
       from: '"GyanMarg" <your.email@gmail.com>',
       to: email,
