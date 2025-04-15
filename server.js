@@ -3,9 +3,10 @@ const sqlite3 = require("sqlite3").verbose();
 const bodyParser = require("body-parser");
 const nodemailer = require("nodemailer");
 const crypto = require("crypto"); // For unique token
-
+const path = require("path");
 const app = express();
 const cors = require("cors");
+const verificationTokens = new Map();
 
 app.use(cors({
   origin: "https://vidishakataria0602.github.io", // your GitHub Pages site
