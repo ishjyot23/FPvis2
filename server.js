@@ -473,6 +473,28 @@ app.post("/verify", (req, res) => {
 });
 
 
+// Test of email sending code
+let transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: "ishjyot@gmail.com", // Replace with your email
+    pass: "cxdh pqdo nlfe xydu"     // Replace with your Gmail App Password
+  }
+});
+
+let mailOptions = {
+  from: '"GyanMarg" <ishjyot@gmail.com>',
+  to: "2023.ishjyot.kaur@ves.ac.in", // Replace with where you want to receive the test email
+  subject: "Testing Nodemailer",
+  html: "<p>This is a test email from GyanMarg!</p>"
+};
+
+transporter.sendMail(mailOptions, function (err, info) {
+  if (err) {
+    return console.log("Error:", err);
+  }
+  console.log("Success:", info.response);
+});
 
 
 // Start the server
