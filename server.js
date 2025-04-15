@@ -8,6 +8,7 @@ const app = express();
 const cors = require("cors");
 
 app.use(cors());
+app.use(express.json()); // parses incoming JSON
 
 app.use(bodyParser.urlencoded({ extended: true })); // Parse form data
 app.use(bodyParser.json()); // Parse JSON data
