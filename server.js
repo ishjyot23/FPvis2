@@ -6,7 +6,16 @@ const nodemailer = require("nodemailer");
 const crypto = require("crypto"); // For unique token
 
 const app = express();
-app.use(cors()); // Allow frontend to communicate
+const cors = require("cors");
+
+const corsOptions = {
+  origin: "https://vidishakataria0602.github.io", // your GitHub Pages domain
+  methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+  credentials: true,
+};
+
+app.use(cors(corsOptions));
+
 app.use(bodyParser.urlencoded({ extended: true })); // Parse form data
 app.use(bodyParser.json()); // Parse JSON data
 
